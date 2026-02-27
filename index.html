@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Chấm Thi Vovinam</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="logo-container" onclick="window.location.reload()">
+                <img src="Logo_VVF.png" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Vovinam_Logo.svg/1200px-Vovinam_Logo.svg.png'" alt="Logo" class="logo">
+                <h1>Hội Đồng Chấm Thi Vovinam</h1>
+            </div>
+            
+            <div class="user-info" id="user-display" style="display: none;">
+                <div class="user-dropdown">
+                    <button class="btn-user-menu">
+                        <i class="fas fa-user-tie"></i> <span id="user-name-display">Người dùng</span>
+                    </button>
+                    <ul class="user-dropdown-content">
+                        <li onclick="window.logout()"><a href="#" style="color: red;"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="login-section">
+            <div class="auth-container">
+                <h2><i class="fas fa-gavel"></i> Đăng Nhập</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Mã Đăng Nhập:</label>
+                        <input type="text" id="login-id" placeholder="VD: HLV hoặc GK01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mật khẩu:</label>
+                        <input type="password" id="login-pass" placeholder="Nhập mật khẩu..." required>
+                    </div>
+                    <button type="submit" class="btn-submit">Truy cập hệ thống</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="admin-panel" style="display: none;">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <h3><i class="fas fa-users-cog"></i> Quản Lý Hội Đồng Giám Khảo</h3>
+                </div>
+                
+                <div class="admin-body">
+                    <div class="add-judge-area">
+                        <h4>Thêm Giám Khảo Mới</h4>
+                        <form id="add-judge-form" onsubmit="window.addJudge(event)">
+                            <div class="form-row">
+                                <input type="text" id="new-judge-name" placeholder="Họ tên (VD: Thầy Nam)" required>
+                                <input type="text" id="new-judge-id" placeholder="Mã GK (VD: GK02)" required>
+                                <input type="text" id="new-judge-pass" placeholder="Mật khẩu" required>
+                                <button type="submit" class="btn-add"><i class="fas fa-plus-circle"></i> Thêm</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="judge-list-area">
+                        <h4>Danh sách hiện tại</h4>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Mã GK</th>
+                                        <th>Họ Tên</th>
+                                        <th>Mật khẩu</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="judge-list-tbody">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="grading-section" style="display: none;">
+            <div class="grading-header">
+                <h2><i class="fas fa-clipboard-list"></i> Danh Sách Thí Sinh</h2>
+                <div class="grading-stats">
+                    <span>Tổng: <b id="stat-total">0</b></span> | 
+                    <span style="color:green">Đậu: <b id="stat-pass">0</b></span> | 
+                    <span style="color:red">Rớt: <b id="stat-fail">0</b></span>
+                </div>
+            </div>
+
+            <div class="filters-toolbar">
+                <select id="filter-club" onchange="window.renderCandidates()">
+                    <option value="ALL">-- Tất cả Đơn vị --</option>
+                    <option value="Nguyễn Huệ">Nguyễn Huệ</option>
+                    <option value="Lê Hữu Trác">Lê Hữu Trác</option>
+                    <option value="Nội Trú">Nội Trú</option>
+                    <option value="Y Ngông">Y Ngông</option>
+                    <option value="Hùng Vương">Hùng Vương</option>
+                </select>
+                <select id="filter-belt" onchange="window.renderCandidates()">
+                    <option value="ALL">-- Tất cả Cấp đai --</option>
+                    <option value="Lam đai">Lam đai</option>
+                    <option value="Lam đai I">Lam đai I</option>
+                    <option value="Lam đai II">Lam đai II</option>
+                    <option value="Chuẩn hoàng đai">Chuẩn hoàng đai</option>
+                </select>
+            </div>
+
+            <div class="table-responsive">
+                <table id="grading-table">
+                    <thead>
+                        <tr>
+                            <th>SBD</th>
+                            <th>Họ và Tên</th>
+                            <th>Đơn vị</th>
+                            <th>Cấp thi</th>
+                            <th>Lý thuyết</th>
+                            <th>Thực hành</th>
+                            <th>Thể lực</th>
+                            <th>ĐTB</th>
+                            <th>Kết quả</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidate-list">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="modal-grade" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="window.closeModal()">&times;</span>
+                <div class="modal-header-custom">
+                    <h3>Phiếu Chấm Điểm</h3>
+                    <p id="modal-student-info">Nguyễn Văn A - Lam đai</p>
+                </div>
+                
+                <form id="grading-form" onsubmit="window.saveGrade(event)">
+                    <input type="hidden" id="grade-id">
+                    
+                    <div class="score-grid">
+                        <div class="score-item">
+                            <label>Lý thuyết (10đ):</label>
+                            <input type="number" id="score-theory" min="0" max="10" step="0.5" required>
+                        </div>
+                        <div class="score-item">
+                            <label>Kỹ thuật/Quyền (10đ):</label>
+                            <input type="number" id="score-tech" min="0" max="10" step="0.5" required>
+                        </div>
+                        <div class="score-item">
+                            <label>Đối luyện/Song luyện (10đ):</label>
+                            <input type="number" id="score-sparring" min="0" max="10" step="0.5" required>
+                        </div>
+                        <div class="score-item">
+                            <label>Thể lực (10đ):</label>
+                            <input type="number" id="score-fitness" min="0" max="10" step="0.5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nhận xét:</label>
+                        <textarea id="grade-note" rows="2" placeholder="Ghi chú..."></textarea>
+                    </div>
+
+                    <div class="grade-summary">
+                        Điểm Trung Bình: <span id="preview-average">0.0</span>
+                    </div>
+
+                    <button type="submit" class="btn-submit btn-save-grade">Lưu Kết Quả</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>Hệ thống chấm thi Vovinam</p>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
